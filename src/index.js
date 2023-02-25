@@ -1,5 +1,5 @@
-const ref = document.querySelector('.list');
-console.log(ref);
+const listRef = document.querySelector('.list');
+
 
 const apiKey = '0cd596ebf4ff480896f2c7f5290732ae';
 
@@ -8,7 +8,7 @@ const fetchSetings = {
     page: 1,
   
     fetchItems(){
-      const url = `https://newsapi.org/v2/everything?q=${this.name}&language=en&pageSize=5&page=${this.page}`;
+      const url = `https://newsapi.org/v2/everything?q=${this.name}&language=en&pageSize=3&page=${this.page}`;
       const options = {
         headers: { Authorization: apiKey },
       };
@@ -20,7 +20,7 @@ const fetchSetings = {
         console.log(res);
         this.incrementPage()
 
-        this.updateArticleMarkup(res.articles)
+        updateArticleMarkup(res.articles)
     })
 
 },
@@ -33,54 +33,67 @@ resetPage() {
     this.page += 1;
   },
 
-//   get query() {
-//     return this.name;
-//   },
-//   set query(value) {
-//     this.name = value;
-//   },
+  get query() {
+    return this.name;
+  },
+  set query(value) {
+    this.name = value;
+  },
 
-updateArticleMarkup(arr){
+
+}
+
+
+// form ////////////////////////////////////////
+
+const formRef = document.querySelector('.js-search-form');
+
+formRef.addEventListener('submit', function (e) {
+  e.preventDefault();
+  
+  resetForm(listRef);
+  fetchSetings.query = e.currentTarget.query.value;
+  fetchSetings.fetchItems();
+  showBtn();
+
+});
+
+//  markap /////////////////////////////////////
+
+function updateArticleMarkup(arr){
     arr.forEach(e => {
         let item = `
-        <li>
+        <li class="list__item">
     <a href="${e.url}" target="_blank" rel="noopener noreferrer">
-      <article>
-        <img src="${e.urlToImage}" alt="" width="480">
-        <h2>${e.title}</h2>
-        <p>Posted by: {{author}}</p>
-        <p>${e.description}</p>
+      <article class="list__article">
+        <img class="list__img" src="${e.urlToImage}" alt="" width="480">
+        <h2 class="list__title">${e.title}</h2>
+        <p class="list__author-name">Posted by: ${e.author}</p>
+        <p class="list__description">${e.description}</p>
       </article>
     </a>
-  </li>`;
+  </li>`
 
-  ref.insertAdjacentHTML('beforeend',item)
+  listRef.insertAdjacentHTML('beforeend',item)
     });
 }
+
+// ///////////  button
+
+const loadMoreRef = document.querySelector('.load-more');
+
+loadMoreRef.addEventListener('click', function (e) {
+  fetchSetings.fetchItems();
+});
+
+// ////////////////////
+
+function showBtn(){
+  loadMoreRef.classList.remove('is-visible')
 }
 
+// reset-form /// 
 
-fetchSetings.name = 'html';
-fetchSetings.fetchItems();
-
-// /////////////////////////////////////
-
-// function updateArticleMarkup(arr){
-//     arr.forEach(e => {
-//         let item = `
-//         <li>
-//     <a href="${e.url}" target="_blank" rel="noopener noreferrer">
-//       <article>
-//         <img src="${e.urlToImage}" alt="" width="480">
-//         <h2>${e.title}</h2>
-//         <p>Posted by: {{author}}</p>
-//         <p>${e.description}</p>
-//       </article>
-//     </a>
-//   </li>`
-
-//   listRef.insertAdjacentHTML('beforeend',item)
-//     });
-// }
-
-// console.log(fetchSetings.fetchItems());
+function resetForm(element){
+    element.innerHTML = '';
+}
